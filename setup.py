@@ -1,6 +1,6 @@
 import setuptools
 
-with open("README.txt", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
 install_requires = ['numpy',
@@ -13,7 +13,7 @@ setuptools.setup(
     version="0.1.3",
     author="Antonis Anastasopoulos, Patrick Littell, David Mortensen",
     author_email="aanastas@cs.cmu.com",
-    description="Returns language vectors",
+    description="A simple library for querying the URIEL typological database.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/pypa/sampleproject",

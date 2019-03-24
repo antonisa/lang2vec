@@ -3,6 +3,10 @@ lang2vec
 
 A simple library for querying the [URIEL typological database](http://www.cs.cmu.edu/~dmortens/uriel.html).
 
+Installation
+------------
+Run ``pip install lang2vec``.
+
 
 Usage
 -----
