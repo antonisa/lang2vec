@@ -98,7 +98,7 @@ We list them here too:
     * "id",
 
 
-There are two optional arguments to ``get_features(langueages, features_sets, header=False, minimal=False)``.
+There are two optional arguments to ``get_features(languages, features_sets, header=False, minimal=False)``.
 Setting ``header=True`` will also return the feature names in a special dictionary entry ``'CODE'``. For example:
 ~~~~
 >>> features = l2v.get_features("eng", "syntax_wals", header=True)
@@ -115,7 +115,17 @@ The "minimal" transformation applies after any union or concatenation.  (If it d
 REFERENCES:
 -----------
 
-The different sets above are derived from many sources:
+If you use lang2vec, please cite the following paper:
+    @inproceedings{littell2017uriel,
+      title={Uriel and lang2vec: Representing languages as typological, geographical, and phylogenetic vectors},
+      author={Littell, Patrick and Mortensen, David R and Lin, Ke and Kairis, Katherine and Turner, Carlisle and Levin, Lori},
+      booktitle={Proceedings of the 15th Conference of the European Chapter of the Association for Computational Linguistics: Volume 2, Short Papers},
+      volume={2},
+      pages={8--14},
+      year={2017}
+    }
+
+The different feature sets above are derived from many sources:
 
 * _wals : Features derived from the World Atlas of Language Structures.
 * _sswl : Features derived from Syntactic Structures of the World's Languages.
