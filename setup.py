@@ -4,13 +4,12 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 install_requires = ['numpy',
-                    'setuptools',
-                    'json']
+                    'setuptools']
 
 
 setuptools.setup(
     name="lang2vec",
-    version="1.1.1",
+    version="1.1.2",
     author="Patrick Littell, David Mortensen, Antonis Anastasopoulos",
     author_email="aanastas@cs.cmu.com",
     description="A simple library for querying the URIEL typological database.",
