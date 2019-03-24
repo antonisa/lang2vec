@@ -29,6 +29,12 @@ Any two letter codes ISO 639-1 codes will be mapped to their corresponding ISO-6
 >>> features = l2v.get_features(["eng", "fra"], "geo")
 >>> features["fra"]
 [0.7378000020980835, 0.7682999968528748, 0.7982000112533569, 0.6941999793052673, ...]
+
+>>> features = l2v.get_features("eng fr", "syntax_wals")
+>>> features["eng"]
+[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, ...]
+>>> features["fr"]
+[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, ...]
 ~~~~
 
 
