@@ -116,6 +116,7 @@ REFERENCES:
 -----------
 
 If you use lang2vec, please cite the following paper:
+
     @inproceedings{littell2017uriel,
       title={Uriel and lang2vec: Representing languages as typological, geographical, and phylogenetic vectors},
       author={Littell, Patrick and Mortensen, David R and Lin, Ke and Kairis, Katherine and Turner, Carlisle and Levin, Lori},
