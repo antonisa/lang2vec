@@ -1,7 +1,9 @@
 lang2vec
 =======
 
-A simple library for querying the [URIEL typological database](http://www.cs.cmu.edu/~dmortens/uriel.html).
+A simple library for querying the [URIEL typological database](http://www.cs.cmu.edu/~dmortens/uriel.html),
+and the learned language vectors from [Malaviya et al, 2017](https://arxiv.org/pdf/1707.09569.pdf).
+
 Based on the [lang2vec tool](http://www.cs.cmu.edu/~dmortens/downloads/uriel_lang2vec_latest.tar.xz) by Patrick Littell.
 
 Installation
@@ -11,7 +13,8 @@ Run ``python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps
 
 Usage
 -----
-The library currently supports a simple operation: querying the URIEL database.
+The library currently supports a simple operation: querying the URIEL database,
+as well as the trained language vectors from [Malaviya et al, 2017](https://arxiv.org/pdf/1707.09569.pdf).
 The main operation is ``get_features(languages, feature_sets, header=False, minimal=False)``, which returns a dictionary with the feature vector for every language in ``languages`` for the ``feature_sets``.
 
 
@@ -38,12 +41,21 @@ Any two letter codes ISO 639-1 codes will be mapped to their corresponding ISO-6
 [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, ...]
 ~~~~
 
+Missing features are returned as ``'--'``. The library prints warning messages if a language is not available, e.g.
+~~~~
+>>> features = l2v.get_features("eng", "learned")
+Note: Language eng not found in the 'learned' feature set. However, it is available in the URIEL feature sets.
+>>> features["eng"][:5]
+['--', '--', '--', '--', '--']
+~~~~
 
 You can list the supported languages with ``lang2vec.LANGUAGES`` or with ``lang2vec.available_languages()``.
+The URIEL languages can be listed with ``lang2vec.URIEL_LANGUAGES`` or with ``lang2vec.available_uriel_languages()``.
+The languages with learned vectors can be listed with ``lang2vec.LEARNED_LANGUAGES`` or with ``lang2vec.available_learned_languages()``.
 
 The second argument is a named feature set, provided as either a string, or a list of strings, or an elementwise union A|B of two feature sets, or a concatenation A+B of two feature sets.  So "geo+syntax_wals|syntax_sswl" gives the geographical feature vector concatenated with the elementwise union of the WALS and SSWL syntax feature sets.
 
-Note that concatenations of unions are allowed, but unions of concatenations are not. Also, the union of two feature sets is restricted to sets with similar sizes. A good rule of thumb is that two sets have similar sizes if their names start with the same word (`"inventory", "phonology", "syntax"`).
+Note that concatenations of unions are allowed, but unions of concatenations are not. Also, the union of two feature sets is restricted to sets with similar sizes. A good rule of thumb is that two sets have similar sizes if their names start with the same prefix (`"inventory", "phonology", "syntax"`). Again, missing features (see last example) will be returned as ``'--'``.
 
 We also provide helper functions ``fs_union()`` and ``fs_concatenation()``. They are "overloaded" so that they can receive an arbitrary number of feature set arguments or a list of feature sets. Some examples:
 ~~~~
@@ -59,6 +71,13 @@ We also provide helper functions ``fs_union()`` and ``fs_concatenation()``. They
 >>> features = l2v.get_features("eng", l2v.fs_concatenation( ["geo", l2v.fs_union(["syntax_wals", "syntax_sswl"])]))
 >>> features['eng'][:5]
 [0.7664999961853027, 0.7924000024795532, 0.8277999758720398, 0.7214000225067139, 0.8568999767303467]
+
+>>> features = l2v.get_features("eng", "learned+syntax_wals")
+Note: Language eng not found in the 'learned' feature set. However, it is available in the URIEL feature sets.
+>>> features["eng"][:5]
+['--', '--', '--', '--', '--']
+>>> features["eng"][512:522]
+[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0]
 ~~~~
 
 The available feature sets can be listed with ``lang2vec.FEATURE_SETS`` or with ``lang2vec.available_feature_sets()``.
@@ -94,7 +113,10 @@ We list them here too:
 
 * Distance from fixed points on Earth's surface
     * "geo",
-    
+
+* Learned vector used for typological predictions in Malaviya et al.
+    * "learned",
+
 * One-hot identity vector:
     * "id",
 
@@ -127,6 +149,18 @@ If you use lang2vec, please cite the following paper:
       year={2017}
     }
 
+If you use the learned vectors, please cite the following paper:
+    
+    @inproceedings{malaviya17emnlp,
+        title = {Learning Language Representations for Typology Prediction},
+        author = {Malaviya, Chaitanya and Neubig, Graham and Littell, Patrick},
+        booktitle = {Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+        address = {Copenhagen, Denmark},
+        month = {September},
+        year = {2017}
+    }
+
+
 The different feature sets above are derived from many sources:
 
 * _wals : Features derived from the World Atlas of Language Structures.
@@ -139,4 +173,5 @@ The different feature sets above are derived from many sources:
 * _phoible-saphon : SAPHON = South American Phonological Inventory Database.  Features derived from PHOIBLE's normalization of SAPHON (Lev et al. 2012).
 * _phoible-spa : SPA = Stanford Phonology Archive.  Features derived from PHOIBLE's normalization of SPA (Crothers et al., 1979).
 * _phoible-upsid : UPSID = UCLA Phonological Segment Inventory Database.  Features derived from PHOIBLE's normalization of UPSID (Maddieson 1984, Maddieson and Precoda 1990).
+* learned_ : 512-dimensional vectors learned by a neural network over data from 1017 languages, trained for typological prediction (Malaviya et al, 2017).
 
