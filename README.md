@@ -42,7 +42,7 @@ You can list the supported languages with ``lang2vec.LANGUAGES`` or with ``lang2
 
 The second argument is a named feature set, provided as either a string, or a list of strings, or an elementwise union A|B of two feature sets, or a concatenation A+B of two feature sets.  So "geo+syntax_wals|syntax_sswl" gives the geographical feature vector concatenated with the elementwise union of the WALS and SSWL syntax feature sets.
 
-Note that concatenations of unions are allowed, but unions of concatenations are not. Also, the union of two feature sets is restricted to sets with different sizes. A good rule of thumb is that two sets have similar sizes if their names start with the same word (`"inventory", "phonology", "syntax"`).
+Note that concatenations of unions are allowed, but unions of concatenations are not. Also, the union of two feature sets is restricted to sets with similar sizes. A good rule of thumb is that two sets have similar sizes if their names start with the same word (`"inventory", "phonology", "syntax"`).
 
 We also provide helper functions ``fs_union()`` and ``fs_concatenation()``. They are "overloaded" so that they can receive an arbitrary number of feature set arguments or a list of feature sets. Some examples:
 ~~~~
