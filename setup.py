@@ -10,7 +10,7 @@ install_requires = ['numpy',
 
 setuptools.setup(
     name="lang2vec",
-    version="1.0",
+    version="1.0.1",
     author="Patrick Littell, David Mortensen, Antonis Anastasopoulos",
     author_email="aanastas@cs.cmu.com",
     description="A simple library for querying the URIEL typological database.",

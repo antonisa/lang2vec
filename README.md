@@ -40,7 +40,6 @@ Note that concatenations of unions are allowed, but unions of concatenations are
 
 We also provide helper functions ``fs_union()`` and ``fs_concatenation()``. They are "overloaded" so that they can receive an arbitrary number of feature set arguments or a list of feature sets. Some examples:
 ~~~~
->>> import lang2vec as l2v
 >>> l2v.fs_union("syntax_wals", "syntax_sswl")
 'syntax_wals|syntax_sswl'
 
