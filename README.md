@@ -5,7 +5,7 @@ A simple library for querying the [URIEL typological database](http://www.cs.cmu
 
 Installation
 ------------
-Run ``pip install lang2vec``.
+Run ``python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps lang2vec``.
 
 
 Usage
