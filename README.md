@@ -2,6 +2,7 @@ lang2vec
 =======
 
 A simple library for querying the [URIEL typological database](http://www.cs.cmu.edu/~dmortens/uriel.html).
+Based on the [lang2vec tool](http://www.cs.cmu.edu/~dmortens/downloads/uriel_lang2vec_latest.tar.xz) by Patrick Littell.
 
 Installation
 ------------
