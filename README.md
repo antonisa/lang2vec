@@ -8,7 +8,9 @@ Based on the [lang2vec tool](http://www.cs.cmu.edu/~dmortens/downloads/uriel_lan
 
 Installation
 ------------
-Run ``pip3 install lang2vec``.
+Run ``pip3 install lang2vec``. 
+Or, if you are installing from source, clone the [git repo](https://github.com/antonisa/lang2vec) and do ``python3 setup.py install``.
+Note that you'll need to download the ``distances.npz`` file from [here](https://drive.google.com/file/d/10LioNEYGNeFP_MLbVMAm9w1xIffaGwV7/view?usp=sharing) and put it in the ``lang2vec/data`` directory.
 
 
 Usage
@@ -142,6 +144,8 @@ We list them here too:
 
 Retrieving pre-computed distances
 ----
+
+Download the ``distances.npz`` file from [here](https://drive.google.com/file/d/10LioNEYGNeFP_MLbVMAm9w1xIffaGwV7/view?usp=sharing) and put it in the ``lang2vec/data`` directory in your installation.
 
 We also provide pre-computed distances for pairs between 8070 languages. The available distances can be listed with ``l2v.DISTANCES``, but they are limited to genetic, geographical, phonological, syntactic, featural, and inventory distance. In most cases, these correspond to the cosine distances between the corresponding feature vectors. For more information, see the paper.
 
