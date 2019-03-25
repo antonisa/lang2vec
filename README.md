@@ -8,14 +8,15 @@ Based on the [lang2vec tool](http://www.cs.cmu.edu/~dmortens/downloads/uriel_lan
 
 Installation
 ------------
-Run ``python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps lang2vec``.
+Run ``pip3 install lang2vec``.
 
 
 Usage
 -----
-The library currently supports a simple operation: querying the URIEL database,
-as well as the trained language vectors from [Malaviya et al, 2017](https://arxiv.org/pdf/1707.09569.pdf).
+The library currently supports two simple operations:
+1. querying the URIEL database, as well as the trained language vectors from [Malaviya et al, 2017](https://arxiv.org/pdf/1707.09569.pdf).
 The main operation is ``get_features(languages, feature_sets, header=False, minimal=False)``, which returns a dictionary with the feature vector for every language in ``languages`` for the ``feature_sets``.
+2. returning pre-computed distances between languages, based on some typological information. The main operation here is ``distance(distance, language1, language2)``, which returns a float distance
 
 
 A minimal working example is:
@@ -24,7 +25,13 @@ A minimal working example is:
 >>> features = l2v.get_features("eng", "geo")
 >>> features["eng"]
 [0.7664999961853027, 0.7924000024795532, 0.8277999758720398, 0.7214000225067139,...]
+>>>
+>>> l2v.distance("syntactic", "eng", "fra")
+0.4569
 ~~~~
+
+Querying URIEL
+---------------
 
 The first argument of ``get_features()`` is either a list or a space-separated string of ISO 639-3 codes (e.g. ``["deu", "eng"]``).
 Any two letter codes ISO 639-1 codes will be mapped to their corresponding ISO-639-3 codes.
@@ -80,6 +87,18 @@ Note: Language eng not found in the 'learned' feature set. However, it is availa
 [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0]
 ~~~~
 
+There are two optional arguments to ``get_features(languages, features_sets, header=False, minimal=False)``.
+Setting ``header=True`` will also return the feature names in a special dictionary entry ``'CODE'``. For example:
+~~~~
+>>> features = l2v.get_features("eng", "syntax_wals", header=True)
+>>> features['CODE'][:5]
+['S_SVO', 'S_SOV', 'S_VSO', 'S_VOS', 'S_OVS']
+~~~~
+
+Setting ``minimal=True`` will suppress the columns that contain only zeros, only ones, or only nulls.
+
+The "minimal" transformation applies after any union or concatenation.  (If it did not, sets in the same group, like the syntax_* sets, would not be the same dimensionality for comparison.) 
+
 The available feature sets can be listed with ``lang2vec.FEATURE_SETS`` or with ``lang2vec.available_feature_sets()``.
 We list them here too:
 
@@ -121,19 +140,48 @@ We list them here too:
     * "id",
 
 
-There are two optional arguments to ``get_features(languages, features_sets, header=False, minimal=False)``.
-Setting ``header=True`` will also return the feature names in a special dictionary entry ``'CODE'``. For example:
+Retrieving pre-computed distances
+----
+
+We also provide pre-computed distances for pairs between 8070 languages. The available distances can be listed with ``l2v.DISTANCES``, but they are limited to genetic, geographical, phonological, syntactic, featural, and inventory distance. In most cases, these correspond to the cosine distances between the corresponding feature vectors. For more information, see the paper.
+
+The ``distance(dist, langs)`` function receives a distance (or a list of distances) and language ISO codes (or a list of codes) as arguments. For a single distance and pair of languages, it returns a float number. If more than two languages are passed as arguments, it returns a numpy array with all the pairwise distances. If more than one distances are passed as arguments, it returns a list of the corresponding outputs.
+Examples:
 ~~~~
->>> features = l2v.get_features("eng", "syntax_wals", header=True)
->>> features['CODE'][:5]
-['S_SVO', 'S_SOV', 'S_VSO', 'S_VOS', 'S_OVS']
+>>> l2v.distance('syntactic', 'frr', 'dan')
+0.6629
+>>> 
+>>> l2v.distance('syntactic', ['frr', 'dan', 'deu'])
+array([[0.    , 0.6629, 0.5788],
+       [0.6629, 0.    , 0.4852],
+       [0.5788, 0.4852, 0.    ]])
+>>> 
+>>> l2v.distance(['syntactic','geographic'], 'frr', 'dan', 'deu')
+[array([[0.    , 0.6629, 0.5788],
+       [0.6629, 0.    , 0.4852],
+       [0.5788, 0.4852, 0.    ]]),
+ array([[0.    , 0.0028, 0.0359],
+       [0.0028, 0.    , 0.0361],
+       [0.0359, 0.0361, 0.    ]])]
 ~~~~
 
-Setting ``minimal=True`` will suppress the columns that contain only zeros, only ones, or only nulls.
+We also provide helper functions for each type of distance, that only need language codes (or a list of codes) as arguments:
+~~~~
+>>> l2v.syntactic_distance('frr','dan')
+0.6629
+>>> l2v.geographic_distance(['frr','dan'])
+0.0028
+>>> l2v.phonological_distance('frr','dan')
+0.0002
+>>> l2v.genetic_distance('frr','dan')
+0.625
+>>> l2v.inventory_distance('frr','dan')
+0.6196
+>>> l2v.featural_distance('frr','dan')
+1.0
+~~~~
 
-The "minimal" transformation applies after any union or concatenation.  (If it did not, sets in the same group, like the syntax_* sets, would not be the same dimensionality for comparison.) 
-
-
+For a description of each distance, refer to the URIEL and lang2vec paper.
 
 REFERENCES:
 -----------

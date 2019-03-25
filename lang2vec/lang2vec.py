@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import argparse, json, itertools, os
+import json, itertools, os
 import numpy as np
 import pkg_resources
 
@@ -12,7 +12,7 @@ Turning the convenience script into a library, for accessing the values inside t
 
 Author: Antonis Anastasopoulos
 Original Author: Patrick Littell
-Last modified: July 15, 2016
+Last modified: March 25, 2019
 '''
 
 LETTER_CODES_FILE = pkg_resources.resource_filename(__name__, "data/letter_codes.json")
@@ -40,10 +40,11 @@ FEATURE_SETS_DICT = {
     "fam" : ( "family_features.npz", "FAM", ""),
     "id" : ( "family_features.npz", "ID", ""),
     "geo" : ( "geocoord_features.npz", "GEOCOORDS", ""),
-    "learned" : ( "learned.npy", "learned", "LEARNED_")
+    "learned" : ( "learned.npz", "learned", "LEARNED_")
     
 }
-
+DISTANCES_FILE = pkg_resources.resource_filename(__name__, "data/distances.npz")
+DISTANCES_DATA = np.load(DISTANCES_FILE)
 
 #LETTER_CODES = {"am": "amh", "bs": "bos", "vi": "vie", "wa": "wln", "eu": "eus", "so": "som", "el": "ell", "aa": "aar", "or": "ori", "sm": "smo", "gn": "grn", "mi": "mri", "pi": "pli", "ps": "pus", "ms": "msa", "sa": "san", "ko": "kor", "sd": "snd", "hz": "her", "ks": "kas", "fo": "fao", "iu": "iku", "tg": "tgk", "dz": "dzo", "ar": "ara", "fa": "fas", "es": "spa", "my": "mya", "mg": "mlg", "st": "sot", "gu": "guj", "uk": "ukr", "lv": "lav", "to": "ton", "nv": "nav", "kl": "kal", "ka": "kat", "yi": "yid", "pl": "pol", "ht": "hat", "lu": "lub", "fr": "fra", "ia": "ina", "lt": "lit", "om": "orm", "qu": "que", "no": "nor", "sr": "srp", "br": "bre", "rm": "roh", "io": "ido", "gl": "glg", "nb": "nob", "ng": "ndo", "ts": "tso", "nr": "nbl", "ee": "ewe", "bo": "bod", "mt": "mlt", "ta": "tam", "et": "est", "yo": "yor", "tw": "twi", "sl": "slv", "su": "sun", "gv": "glv", "lo": "lao", "af": "afr", "sg": "sag", "sv": "swe", "ne": "nep", "ie": "ile", "bm": "bam", "sc": "srd", "sw": "swa", "nn": "nno", "ho": "hmo", "ak": "aka", "ab": "abk", "ti": "tir", "fy": "fry", "cr": "cre", "sh": "hbs", "ny": "nya", "uz": "uzb", "as": "asm", "ky": "kir", "av": "ava", "ig": "ibo", "zh": "zho", "tr": "tur", "hu": "hun", "pt": "por", "fj": "fij", "hr": "hrv", "it": "ita", "te": "tel", "rw": "kin", "kk": "kaz", "hy": "hye", "wo": "wol", "jv": "jav", "oc": "oci", "kn": "kan", "cu": "chu", "ln": "lin", "ha": "hau", "ru": "rus", "pa": "pan", "cv": "chv", "ss": "ssw", "ki": "kik", "ga": "gle", "dv": "div", "vo": "vol", "lb": "ltz", "ce": "che", "oj": "oji", "th": "tha", "ff": "ful", "kv": "kom", "tk": "tuk", "kr": "kau", "bg": "bul", "tt": "tat", "ml": "mal", "tl": "tgl", "mr": "mar", "hi": "hin", "ku": "kur", "na": "nau", "li": "lim", "nl": "nld", "nd": "nde", "os": "oss", "la": "lat", "bn": "ben", "kw": "cor", "id": "ind", "ay": "aym", "xh": "xho", "zu": "zul", "cs": "ces", "sn": "sna", "de": "deu", "co": "cos", "sk": "slk", "ug": "uig", "rn": "run", "he": "heb", "ba": "bak", "ro": "ron", "be": "bel", "ca": "cat", "kj": "kua", "ja": "jpn", "ch": "cha", "ik": "ipk", "bi": "bis", "an": "arg", "cy": "cym", "tn": "tsn", "mk": "mkd", "ve": "ven", "eo": "epo", "kg": "kon", "km": "khm", "se": "sme", "ii": "iii", "az": "aze", "en": "eng", "ur": "urd", "za": "zha", "is": "isl", "mh": "mah", "mn": "mon", "sq": "sqi", "lg": "lug", "gd": "gla", "fi": "fin", "ty": "tah", "da": "dan", "si": "sin", "ae": "ave"}
 with open(LETTER_CODES_FILE, 'r') as letter_file:
@@ -76,10 +77,15 @@ def available_languages():
 def available_feature_sets():
     return [key for key in FEATURE_SETS_DICT]
 
+def available_distance_languages():
+    return list(DISTANCES_DATA["languages"])
+
 LANGUAGES = available_languages()
 URIEL_LANGUAGES = available_uriel_languages()
 LEARNED_LANGUAGES = available_learned_languages()
 FEATURE_SETS = available_feature_sets()
+DISTANCE_LANGUAGES = available_distance_languages()
+DISTANCES = ["genetic", "geographic", "syntactic", "inventory", "phonological", "featural"]
 
 def get_language_code(lang_code, feature_database):
     # first, normalize to an ISO 639-3 code
@@ -143,9 +149,9 @@ def get_id_set(lang_codes):
     return feature_names, values
 
 def get_learned_set(lang_codes):
-    filename = "learned.npy"
+    filename = "learned.npz"
     filename = pkg_resources.resource_filename(__name__, os.path.join('data', filename))
-    feature_database = np.load(filename, encoding="latin1").item()
+    feature_database = np.load(filename, encoding="latin1")["learned"].item()
     lang_codes = [ get_learned_language_code(l, feature_database) for l in lang_codes ]
     feature_names = [ "LEARNED_%03d" % i for i in range(512) ]
     feature_values = np.ones((len(lang_codes),512))*(-1)
@@ -326,14 +332,75 @@ def get_features(languages, feature_set_inp, header=False, minimal=False):
         output[lang_code] = values
     return output
 
-'''
-if __name__ == '__main__':
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument("languages", default='', help="The languages of interest, in ISO 639-3 codes, separated by spaces (e.g., \"deu eng fra swe\")")
-    argparser.add_argument("feature_set", default='', help="The feature set or sets of interest (e.g., \"syntax_knn\" or \"fam\"), joined by concatenation (+) or element-wise union (|).")
-    argparser.add_argument("-f", "--fields", default=False, action="store_true", help="Print feature names as the first row of data.")
-    argparser.add_argument("-r", "--random", default=False, action="store_true", help="Randomize all feature values (e.g., to make a control group).")
-    argparser.add_argument("-m", "--minimal", default=False, action="store_true", help="Suppress columns that are all 0, all 1, or all nulls.")
-    args = argparser.parse_args()
-    get_features(args.languages, args.feature_set, args.fields, args.random, args.minimal)
-'''
+def distance(distance, *args):
+    if isinstance(distance, str):
+        distance_list = [distance]
+    elif isinstance(distance, list):
+        distance_list = distance
+    else:
+        raise Exception("Unknown distance type. Provide a name (str) or a list of str.")
+
+    for dist in distance_list:
+        if dist not in DISTANCES:
+            raise Exception("Unknown distance " + dist + ". The available ones are: " + ' '.join(DISTANCES))
+
+    if len(args) == 1 and not isinstance(args[0],list):
+        raise Exception("Error: You only provided one language argument.\nProvide multiple language arguments, or a single list of languages as arguments.")
+    if len(args) == 1 and isinstance(args[0],list):
+        langs = args[0]
+    else:
+        langs = [l for l in args]
+    for l in langs:
+        if l not in DISTANCE_LANGUAGES:
+            raise Exception("Unknown language " + l + " (or maybe we don't have precomputed distances for this one).")
+    indeces = [DISTANCE_LANGUAGES.index(l) for l in langs]
+
+    N = len(indeces)
+    if N == 2:
+        if len(distance_list) == 1:
+            return DISTANCES_DATA[distance_list[0]][indeces[0],indeces[1]]
+        else:
+            return [DISTANCES_DATA[dist][indeces[0],indeces[1]] for dist in distance_list]
+
+    else:
+        if len(distance_list) == 1:
+            arr = np.zeros((N,N))
+            for a,i in enumerate(indeces):
+                for b,j in enumerate(indeces):
+                    if i!=j:
+                        arr[a,b] = DISTANCES_DATA[distance_list[0]][i,j]
+            return arr
+        else:
+            arr_list = [np.zeros((N,N)) for dist in distance_list]
+            for k,dist in enumerate(distance_list):
+                for a,i in enumerate(indeces):
+                    for b,j in enumerate(indeces):
+                        if i!=j:
+                            arr_list[k][a,b] = DISTANCES_DATA[dist][i,j]
+            return arr_list
+
+
+
+def geographic_distance(*args):
+    return distance("geographic", *args)
+
+def genetic_distance(*args):
+    return distance("genetic", *args)
+
+def featural_distance(*args):
+    return distance("featural", *args)
+
+def inventory_distance(*args):
+    return distance("inventory", *args)
+
+def phonological_distance(*args):
+    return distance("phonological", *args)
+
+def geographic_distance(*args):
+    return distance("geographic", *args)
+
+def syntactic_distance(*args):
+    return distance("syntactic", *args)
+
+
+
