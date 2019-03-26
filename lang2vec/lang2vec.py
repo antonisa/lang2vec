@@ -7,6 +7,7 @@ import json, itertools, os
 import numpy as np
 import pkg_resources
 from zipfile import ZipFile as zf
+import urllib.request
 
 ''' 
 Turning the convenience script into a library, for accessing the values inside the URIEL typological and geodata knowledge bases 
@@ -344,7 +345,41 @@ def map_distance_to_filename(distance):
      "featural" : "FEATURAL.csv"}
     return d[distance]
 
+
+def query_yes_no(question, default="yes"):
+    valid = {"yes": True, "y": True, "ye": True,
+             "no": False, "n": False}
+    if default is None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
+
+    while True:
+        sys.stdout.write(question + prompt)
+        choice = input().lower()
+        if default is not None and choice == '':
+            return valid[default]
+        elif choice in valid:
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes' or 'no' "
+                             "(or 'y' or 'n').\n")
+
 def distance(distance, *args):
+    if not os.path.exists(DISTANCES_FILE):
+        question = "The pre-computed distances have not been downloaded yet.\nThey require about 240MB in your disk. Do you want to proceed and download them? "
+        if query_yes_no(question):
+            try:
+                print("Downloading pre-computed distances... (will take a few seconds)."
+                filename, headers = urllib.request.urlretrieve("http://www.cs.cmu.edu/~aanastas/files/distances.zip", DISTANCES_FILE)
+            except:
+                raise Exception("Failed to download the distances :(")
+
+
     if isinstance(distance, str):
         distance_list = [distance]
     elif isinstance(distance, list):
