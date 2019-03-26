@@ -10,7 +10,13 @@ Installation
 ------------
 Run ``pip3 install lang2vec``. 
 Or, if you are installing from source, clone the [git repo](https://github.com/antonisa/lang2vec) and do ``python3 setup.py install``.
-Note that you'll need to download the ``distances.npz`` file from [here](https://drive.google.com/file/d/10LioNEYGNeFP_MLbVMAm9w1xIffaGwV7/view?usp=sharing) and put it in the ``lang2vec/data`` directory.
+Note that you'll need to download the ``distances.npz`` file from [here](http://www.cs.cmu.edu/~aanastas/files/distances.npz) and put it in the ``lang2vec/data`` directory.
+~~~~
+git clone https://github.com/antonisa/lang2vec
+cd lang2vec
+wget http://www.cs.cmu.edu/~aanastas/files/distances.npz lang2vec/data/
+python3 setup.py install
+~~~~
 
 
 Usage
