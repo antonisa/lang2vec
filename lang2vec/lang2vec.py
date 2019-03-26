@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import json, itertools, os
 import numpy as np
 import pkg_resources
+from zipfile import ZipFile as zf
 
 ''' 
 Turning the convenience script into a library, for accessing the values inside the URIEL typological and geodata knowledge bases 
@@ -43,8 +44,9 @@ FEATURE_SETS_DICT = {
     "learned" : ( "learned.npz", "learned", "LEARNED_")
     
 }
-DISTANCES_FILE = pkg_resources.resource_filename(__name__, "data/distances.npz")
-DISTANCES_DATA = np.load(DISTANCES_FILE)
+DISTANCES_FILE = pkg_resources.resource_filename(__name__, "data/distances.zip")
+DISTANCES_LANGUAGE_FILE = pkg_resources.resource_filename(__name__, "data/distances_languages.txt")
+#DISTANCES_DATA = np.load(DISTANCES_FILE)
 
 #LETTER_CODES = {"am": "amh", "bs": "bos", "vi": "vie", "wa": "wln", "eu": "eus", "so": "som", "el": "ell", "aa": "aar", "or": "ori", "sm": "smo", "gn": "grn", "mi": "mri", "pi": "pli", "ps": "pus", "ms": "msa", "sa": "san", "ko": "kor", "sd": "snd", "hz": "her", "ks": "kas", "fo": "fao", "iu": "iku", "tg": "tgk", "dz": "dzo", "ar": "ara", "fa": "fas", "es": "spa", "my": "mya", "mg": "mlg", "st": "sot", "gu": "guj", "uk": "ukr", "lv": "lav", "to": "ton", "nv": "nav", "kl": "kal", "ka": "kat", "yi": "yid", "pl": "pol", "ht": "hat", "lu": "lub", "fr": "fra", "ia": "ina", "lt": "lit", "om": "orm", "qu": "que", "no": "nor", "sr": "srp", "br": "bre", "rm": "roh", "io": "ido", "gl": "glg", "nb": "nob", "ng": "ndo", "ts": "tso", "nr": "nbl", "ee": "ewe", "bo": "bod", "mt": "mlt", "ta": "tam", "et": "est", "yo": "yor", "tw": "twi", "sl": "slv", "su": "sun", "gv": "glv", "lo": "lao", "af": "afr", "sg": "sag", "sv": "swe", "ne": "nep", "ie": "ile", "bm": "bam", "sc": "srd", "sw": "swa", "nn": "nno", "ho": "hmo", "ak": "aka", "ab": "abk", "ti": "tir", "fy": "fry", "cr": "cre", "sh": "hbs", "ny": "nya", "uz": "uzb", "as": "asm", "ky": "kir", "av": "ava", "ig": "ibo", "zh": "zho", "tr": "tur", "hu": "hun", "pt": "por", "fj": "fij", "hr": "hrv", "it": "ita", "te": "tel", "rw": "kin", "kk": "kaz", "hy": "hye", "wo": "wol", "jv": "jav", "oc": "oci", "kn": "kan", "cu": "chu", "ln": "lin", "ha": "hau", "ru": "rus", "pa": "pan", "cv": "chv", "ss": "ssw", "ki": "kik", "ga": "gle", "dv": "div", "vo": "vol", "lb": "ltz", "ce": "che", "oj": "oji", "th": "tha", "ff": "ful", "kv": "kom", "tk": "tuk", "kr": "kau", "bg": "bul", "tt": "tat", "ml": "mal", "tl": "tgl", "mr": "mar", "hi": "hin", "ku": "kur", "na": "nau", "li": "lim", "nl": "nld", "nd": "nde", "os": "oss", "la": "lat", "bn": "ben", "kw": "cor", "id": "ind", "ay": "aym", "xh": "xho", "zu": "zul", "cs": "ces", "sn": "sna", "de": "deu", "co": "cos", "sk": "slk", "ug": "uig", "rn": "run", "he": "heb", "ba": "bak", "ro": "ron", "be": "bel", "ca": "cat", "kj": "kua", "ja": "jpn", "ch": "cha", "ik": "ipk", "bi": "bis", "an": "arg", "cy": "cym", "tn": "tsn", "mk": "mkd", "ve": "ven", "eo": "epo", "kg": "kon", "km": "khm", "se": "sme", "ii": "iii", "az": "aze", "en": "eng", "ur": "urd", "za": "zha", "is": "isl", "mh": "mah", "mn": "mon", "sq": "sqi", "lg": "lug", "gd": "gla", "fi": "fin", "ty": "tah", "da": "dan", "si": "sin", "ae": "ave"}
 with open(LETTER_CODES_FILE, 'r') as letter_file:
@@ -78,7 +80,9 @@ def available_feature_sets():
     return [key for key in FEATURE_SETS_DICT]
 
 def available_distance_languages():
-    return list(DISTANCES_DATA["languages"])
+    with open(DISTANCES_LANGUAGE_FILE) as inp:
+        l = inp.readlines()[0]
+    return l.strip().split(',')
 
 LANGUAGES = available_languages()
 URIEL_LANGUAGES = available_uriel_languages()
@@ -332,6 +336,14 @@ def get_features(languages, feature_set_inp, header=False, minimal=False):
         output[lang_code] = values
     return output
 
+def map_distance_to_filename(distance):
+    d = {"genetic": "GENETIC.csv", "geographic": "GEOGRAPHIC.csv", 
+     "syntactic" : "SYNTACTIC.csv",
+     "inventory" : "INVENTORY.csv",
+     "phonological" : "PHONOLOGICAL.csv",
+     "featural" : "FEATURAL.csv"}
+    return d[distance]
+
 def distance(distance, *args):
     if isinstance(distance, str):
         distance_list = [distance]
@@ -353,31 +365,41 @@ def distance(distance, *args):
     for l in langs:
         if l not in DISTANCE_LANGUAGES:
             raise Exception("Unknown language " + l + " (or maybe we don't have precomputed distances for this one).")
-    indeces = [DISTANCE_LANGUAGES.index(l) for l in langs]
+    indeces = [DISTANCE_LANGUAGES.index(l)+1 for l in langs]
+
 
     N = len(indeces)
     if N == 2:
-        if len(distance_list) == 1:
-            return DISTANCES_DATA[distance_list[0]][indeces[0],indeces[1]]
+        out = []
+        with zf(DISTANCES_FILE, 'r') as zp:
+            for dist in distance_list:
+                with zp.open(map_distance_to_filename(dist)) as specfile:
+                    lines = specfile.readlines()
+                line = str(lines[indeces[0]]).strip().split(',')
+                out.append(float(line[indeces[1]]))
+        if len(out) > 1:
+            return out
         else:
-            return [DISTANCES_DATA[dist][indeces[0],indeces[1]] for dist in distance_list]
-
+            return out[0]
     else:
-        if len(distance_list) == 1:
-            arr = np.zeros((N,N))
-            for a,i in enumerate(indeces):
-                for b,j in enumerate(indeces):
-                    if i!=j:
-                        arr[a,b] = DISTANCES_DATA[distance_list[0]][i,j]
-            return arr
-        else:
-            arr_list = [np.zeros((N,N)) for dist in distance_list]
+        arr_list = [np.zeros((N,N)) for dist in distance_list]
+        with zf(DISTANCES_FILE, 'r') as zp:
             for k,dist in enumerate(distance_list):
+                with zp.open(map_distance_to_filename(dist)) as specfile:
+                    lines = specfile.readlines()
                 for a,i in enumerate(indeces):
+                    line = str(lines[i]).strip().split(',')
                     for b,j in enumerate(indeces):
-                        if i!=j:
-                            arr_list[k][a,b] = DISTANCES_DATA[dist][i,j]
+                        if a != b:
+                            distance_d = line[j]
+                            arr_list[k][a,b] = float(distance_d)
+        if len(arr_list) > 1:
             return arr_list
+        else:
+            return arr_list[0]
+
+
+
 
 
 

@@ -9,7 +9,7 @@ install_requires = ['numpy',
 
 setuptools.setup(
     name="lang2vec",
-    version="1.1.3",
+    version="1.1.4",
     author="Patrick Littell, David Mortensen, Antonis Anastasopoulos",
     author_email="aanastas@cs.cmu.com",
     description="A simple library for querying the URIEL typological database.",
@@ -20,7 +20,7 @@ setuptools.setup(
     scripts=['lang2vec/lang2vec.py'],
     packages=['lang2vec'],
     package_dir={'lang2vec': 'lang2vec'},
-    package_data={'lang2vec': ['data/*.npz', 'data/*.json']},
+    package_data={'lang2vec': ['data/*.npz', 'data/*.json', 'data/distances.zip', 'data/distances_languages.txt']},
     zip_safe=True,
     classifiers=['Operating System :: OS Independent',
                'Programming Language :: Python :: 3',
