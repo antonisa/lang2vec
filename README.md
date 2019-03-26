@@ -14,7 +14,8 @@ Note that you'll need to download the ``distances.npz`` file from [here](http://
 ~~~~
 git clone https://github.com/antonisa/lang2vec
 cd lang2vec
-wget http://www.cs.cmu.edu/~aanastas/files/distances.npz lang2vec/data/
+wget http://www.cs.cmu.edu/~aanastas/files/distances.npz .
+mv distances.npz lang2vec/data/
 python3 setup.py install
 ~~~~
 
