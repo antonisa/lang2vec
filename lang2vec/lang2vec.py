@@ -42,7 +42,7 @@ FEATURE_SETS_DICT = {
     "fam" : ( "family_features.npz", "FAM", ""),
     "id" : ( "family_features.npz", "ID", ""),
     "geo" : ( "geocoord_features.npz", "GEOCOORDS", ""),
-    "learned" : ( "learned.npz", "learned", "LEARNED_")
+    "learned" : ( "learned.npy", "learned", "LEARNED_")
     
 }
 DISTANCES_FILE = pkg_resources.resource_filename(__name__, "data/distances.zip")
@@ -154,7 +154,7 @@ def get_id_set(lang_codes):
     return feature_names, values
 
 def get_learned_set(lang_codes):
-    filename = "learned.npz"
+    filename = "learned.npy"
     filename = pkg_resources.resource_filename(__name__, os.path.join('data', filename))
     feature_database = np.load(filename, encoding="latin1")["learned"].item()
     lang_codes = [ get_learned_language_code(l, feature_database) for l in lang_codes ]

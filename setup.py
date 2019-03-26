@@ -20,7 +20,7 @@ setuptools.setup(
     scripts=['lang2vec/lang2vec.py'],
     packages=['lang2vec'],
     package_dir={'lang2vec': 'lang2vec'},
-    package_data={'lang2vec': ['data/*.npz', 'data/*.json', 'data/distances.zip', 'data/distances_languages.txt']},
+    package_data={'lang2vec': ['data/*.npz', 'data/*.json', 'data/learned.npy', 'data/distances.zip', 'data/distances_languages.txt']},
     zip_safe=True,
     classifiers=['Operating System :: OS Independent',
                'Programming Language :: Python :: 3',
