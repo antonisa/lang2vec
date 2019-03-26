@@ -374,7 +374,7 @@ def distance(distance, *args):
         question = "The pre-computed distances have not been downloaded yet.\nThey require about 240MB in your disk. Do you want to proceed and download them? "
         if query_yes_no(question):
             try:
-                print("Downloading pre-computed distances... (will take a few seconds)."
+                print("Downloading pre-computed distances... (will take a few seconds).")
                 filename, headers = urllib.request.urlretrieve("http://www.cs.cmu.edu/~aanastas/files/distances.zip", DISTANCES_FILE)
             except:
                 raise Exception("Failed to download the distances :(")
