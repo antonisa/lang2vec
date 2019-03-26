@@ -3,7 +3,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import json, itertools, os
+import json, itertools, os, sys
 import numpy as np
 import pkg_resources
 from zipfile import ZipFile as zf
