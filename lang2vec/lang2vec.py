@@ -370,7 +370,7 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 def distance(distance, *args):
-    if not os.path.exists(DISTANCES_FILE):
+    if os.stat(DISTANCES_FILE).st_size < 1000:
         question = "The pre-computed distances have not been downloaded yet.\nThey require about 240MB in your disk. Do you want to proceed and download them? "
         if query_yes_no(question):
             try:
