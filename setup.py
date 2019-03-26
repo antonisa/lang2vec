@@ -1,10 +1,42 @@
 import setuptools
+import urllib.request, sys
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 install_requires = ['numpy',
                     'setuptools']
+
+def query_yes_no(question, default="yes"):
+    valid = {"yes": True, "y": True, "ye": True,
+             "no": False, "n": False}
+    if default is None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
+
+    while True:
+        sys.stdout.write(question + prompt)
+        choice = input().lower()
+        if default is not None and choice == '':
+            return valid[default]
+        elif choice in valid:
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes' or 'no' "
+                             "(or 'y' or 'n').\n")
+
+question = "Do you want to download pre-computed distances?\nThey require about 240MB in your disk. Proceed? "
+if query_yes_no(question):
+    try:
+        print("Downloading pre-computed distances... (will take a few seconds).")
+        filename, headers = urllib.request.urlretrieve("http://www.cs.cmu.edu/~aanastas/files/distances.zip", "lang2vec/data/distances.zip")
+    except:
+        raise Exception("Failed to download the distances :(")
 
 
 setuptools.setup(

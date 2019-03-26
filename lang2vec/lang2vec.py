@@ -156,7 +156,7 @@ def get_id_set(lang_codes):
 def get_learned_set(lang_codes):
     filename = "learned.npy"
     filename = pkg_resources.resource_filename(__name__, os.path.join('data', filename))
-    feature_database = np.load(filename, encoding="latin1")["learned"].item()
+    feature_database = np.load(filename, encoding="latin1").item()
     lang_codes = [ get_learned_language_code(l, feature_database) for l in lang_codes ]
     feature_names = [ "LEARNED_%03d" % i for i in range(512) ]
     feature_values = np.ones((len(lang_codes),512))*(-1)
@@ -371,6 +371,8 @@ def query_yes_no(question, default="yes"):
 
 def distance(distance, *args):
     if os.stat(DISTANCES_FILE).st_size < 1000:
+        raise Exception("You have not downloaded the distances :(")
+        '''
         question = "The pre-computed distances have not been downloaded yet.\nThey require about 240MB in your disk. Do you want to proceed and download them? "
         if query_yes_no(question):
             try:
@@ -378,6 +380,7 @@ def distance(distance, *args):
                 filename, headers = urllib.request.urlretrieve("http://www.cs.cmu.edu/~aanastas/files/distances.zip", DISTANCES_FILE)
             except:
                 raise Exception("Failed to download the distances :(")
+        '''
 
 
     if isinstance(distance, str):
