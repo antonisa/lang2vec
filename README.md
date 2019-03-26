@@ -14,8 +14,8 @@ Note that you'll need to download the ``distances.npz`` file from [here](http://
 ~~~~
 git clone https://github.com/antonisa/lang2vec
 cd lang2vec
-wget http://www.cs.cmu.edu/~aanastas/files/distances.npz .
-mv distances.npz lang2vec/data/
+wget http://www.cs.cmu.edu/~aanastas/files/distances.zip .
+mv distances.zip lang2vec/data/
 python3 setup.py install
 ~~~~
 
@@ -152,9 +152,9 @@ We list them here too:
 Retrieving pre-computed distances
 ----
 
-Download the ``distances.npz`` file from [here](http://www.cs.cmu.edu/~aanastas/files/distances.npz) and put it in the ``lang2vec/data`` directory in your installation.
+Download the ``distances.npz`` file from [here](http://www.cs.cmu.edu/~aanastas/files/distances.zip) and put it in the ``lang2vec/data`` directory in your installation.
 
-We also provide pre-computed distances for pairs between 8070 languages. The available distances can be listed with ``l2v.DISTANCES``, but they are limited to genetic, geographical, phonological, syntactic, featural, and inventory distance. In most cases, these correspond to the cosine distances between the corresponding feature vectors. For more information, see the paper.
+These are the pre-computed distances for pairs between 8070 languages. The available distances can be listed with ``l2v.DISTANCES``, but they are limited to genetic, geographical, phonological, syntactic, featural, and inventory distance. In most cases, these correspond to the cosine distances between the corresponding feature vectors. For more information, see the paper.
 
 The ``distance(dist, langs)`` function receives a distance (or a list of distances) and language ISO codes (or a list of codes) as arguments. For a single distance and pair of languages, it returns a float number. If more than two languages are passed as arguments, it returns a numpy array with all the pairwise distances. If more than one distances are passed as arguments, it returns a list of the corresponding outputs.
 Examples:
