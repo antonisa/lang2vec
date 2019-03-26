@@ -371,17 +371,7 @@ def query_yes_no(question, default="yes"):
 
 def distance(distance, *args):
     if os.stat(DISTANCES_FILE).st_size < 1000:
-        raise Exception("You have not downloaded the distances :(")
-        '''
-        question = "The pre-computed distances have not been downloaded yet.\nThey require about 240MB in your disk. Do you want to proceed and download them? "
-        if query_yes_no(question):
-            try:
-                print("Downloading pre-computed distances... (will take a few seconds).")
-                filename, headers = urllib.request.urlretrieve("http://www.cs.cmu.edu/~aanastas/files/distances.zip", DISTANCES_FILE)
-            except:
-                raise Exception("Failed to download the distances :(")
-        '''
-
+        raise Exception("You have not downloaded the distances :( Install again answering yes to the prompt to download the distances.")
 
     if isinstance(distance, str):
         distance_list = [distance]
