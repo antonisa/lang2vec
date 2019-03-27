@@ -8,6 +8,7 @@ import numpy as np
 import pkg_resources
 from zipfile import ZipFile as zf
 import urllib.request
+import scipy.sparse as sparse
 
 ''' 
 Turning the convenience script into a library, for accessing the values inside the URIEL typological and geodata knowledge bases 
@@ -45,11 +46,9 @@ FEATURE_SETS_DICT = {
     "learned" : ( "learned.npy", "learned", "LEARNED_")
     
 }
-DISTANCES_FILE = pkg_resources.resource_filename(__name__, "data/distances.zip")
+DISTANCES_FILE = pkg_resources.resource_filename(__name__, "data/distances2.zip")
 DISTANCES_LANGUAGE_FILE = pkg_resources.resource_filename(__name__, "data/distances_languages.txt")
-#DISTANCES_DATA = np.load(DISTANCES_FILE)
 
-#LETTER_CODES = {"am": "amh", "bs": "bos", "vi": "vie", "wa": "wln", "eu": "eus", "so": "som", "el": "ell", "aa": "aar", "or": "ori", "sm": "smo", "gn": "grn", "mi": "mri", "pi": "pli", "ps": "pus", "ms": "msa", "sa": "san", "ko": "kor", "sd": "snd", "hz": "her", "ks": "kas", "fo": "fao", "iu": "iku", "tg": "tgk", "dz": "dzo", "ar": "ara", "fa": "fas", "es": "spa", "my": "mya", "mg": "mlg", "st": "sot", "gu": "guj", "uk": "ukr", "lv": "lav", "to": "ton", "nv": "nav", "kl": "kal", "ka": "kat", "yi": "yid", "pl": "pol", "ht": "hat", "lu": "lub", "fr": "fra", "ia": "ina", "lt": "lit", "om": "orm", "qu": "que", "no": "nor", "sr": "srp", "br": "bre", "rm": "roh", "io": "ido", "gl": "glg", "nb": "nob", "ng": "ndo", "ts": "tso", "nr": "nbl", "ee": "ewe", "bo": "bod", "mt": "mlt", "ta": "tam", "et": "est", "yo": "yor", "tw": "twi", "sl": "slv", "su": "sun", "gv": "glv", "lo": "lao", "af": "afr", "sg": "sag", "sv": "swe", "ne": "nep", "ie": "ile", "bm": "bam", "sc": "srd", "sw": "swa", "nn": "nno", "ho": "hmo", "ak": "aka", "ab": "abk", "ti": "tir", "fy": "fry", "cr": "cre", "sh": "hbs", "ny": "nya", "uz": "uzb", "as": "asm", "ky": "kir", "av": "ava", "ig": "ibo", "zh": "zho", "tr": "tur", "hu": "hun", "pt": "por", "fj": "fij", "hr": "hrv", "it": "ita", "te": "tel", "rw": "kin", "kk": "kaz", "hy": "hye", "wo": "wol", "jv": "jav", "oc": "oci", "kn": "kan", "cu": "chu", "ln": "lin", "ha": "hau", "ru": "rus", "pa": "pan", "cv": "chv", "ss": "ssw", "ki": "kik", "ga": "gle", "dv": "div", "vo": "vol", "lb": "ltz", "ce": "che", "oj": "oji", "th": "tha", "ff": "ful", "kv": "kom", "tk": "tuk", "kr": "kau", "bg": "bul", "tt": "tat", "ml": "mal", "tl": "tgl", "mr": "mar", "hi": "hin", "ku": "kur", "na": "nau", "li": "lim", "nl": "nld", "nd": "nde", "os": "oss", "la": "lat", "bn": "ben", "kw": "cor", "id": "ind", "ay": "aym", "xh": "xho", "zu": "zul", "cs": "ces", "sn": "sna", "de": "deu", "co": "cos", "sk": "slk", "ug": "uig", "rn": "run", "he": "heb", "ba": "bak", "ro": "ron", "be": "bel", "ca": "cat", "kj": "kua", "ja": "jpn", "ch": "cha", "ik": "ipk", "bi": "bis", "an": "arg", "cy": "cym", "tn": "tsn", "mk": "mkd", "ve": "ven", "eo": "epo", "kg": "kon", "km": "khm", "se": "sme", "ii": "iii", "az": "aze", "en": "eng", "ur": "urd", "za": "zha", "is": "isl", "mh": "mah", "mn": "mon", "sq": "sqi", "lg": "lug", "gd": "gla", "fi": "fin", "ty": "tah", "da": "dan", "si": "sin", "ae": "ave"}
 with open(LETTER_CODES_FILE, 'r') as letter_file:
     LETTER_CODES = json.load(letter_file)
 
@@ -67,7 +66,6 @@ def available_uriel_languages():
         for l in langs:
             avail.add(l)
     return avail
-    #return set([LETTER_CODES[lang_code] for lang_code in LETTER_CODES])
 
 def available_learned_languages():
     return set(LEARNED_LETTER_CODES)
@@ -338,11 +336,12 @@ def get_features(languages, feature_set_inp, header=False, minimal=False):
     return output
 
 def map_distance_to_filename(distance):
-    d = {"genetic": "GENETIC.csv", "geographic": "GEOGRAPHIC.csv", 
-     "syntactic" : "SYNTACTIC.csv",
-     "inventory" : "INVENTORY.csv",
-     "phonological" : "PHONOLOGICAL.csv",
-     "featural" : "FEATURAL.csv"}
+    d = {"genetic": "genetic_upper_sparse.npz",
+     "geographic": "geographic_upper_round1_sparse.npz", 
+     "syntactic" : "syntactic_upper_round2_sparse.npz",
+     "inventory" : "inventory_upper_sparse.npz",
+     "phonological" : "phonological_upper_sparse.npz",
+     "featural" : "featural_upper_round1_sparse.npz"}
     return d[distance]
 
 
@@ -370,8 +369,6 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 def distance(distance, *args):
-    if os.stat(DISTANCES_FILE).st_size < 1000:
-        raise Exception("You have not downloaded the distances :( Install again answering yes to the prompt to download the distances.")
 
     if isinstance(distance, str):
         distance_list = [distance]
@@ -393,7 +390,7 @@ def distance(distance, *args):
     for l in langs:
         if l not in DISTANCE_LANGUAGES:
             raise Exception("Unknown language " + l + " (or maybe we don't have precomputed distances for this one).")
-    indeces = [DISTANCE_LANGUAGES.index(l)+1 for l in langs]
+    indeces = [DISTANCE_LANGUAGES.index(l) for l in langs]
 
 
     N = len(indeces)
@@ -401,10 +398,11 @@ def distance(distance, *args):
         out = []
         with zf(DISTANCES_FILE, 'r') as zp:
             for dist in distance_list:
-                with zp.open(map_distance_to_filename(dist)) as specfile:
-                    lines = specfile.readlines()
-                line = str(lines[indeces[0]]).strip().split(',')
-                out.append(float(line[indeces[1]]))
+                data = sparse.load_npz(zp.open(map_distance_to_filename(dist)))
+                if indeces[0] > indeces[1]:
+                    out.append(data[indeces[1],indeces[0]])
+                else:
+                    out.append(data[indeces[0],indeces[1]])
         if len(out) > 1:
             return out
         else:
@@ -413,22 +411,18 @@ def distance(distance, *args):
         arr_list = [np.zeros((N,N)) for dist in distance_list]
         with zf(DISTANCES_FILE, 'r') as zp:
             for k,dist in enumerate(distance_list):
-                with zp.open(map_distance_to_filename(dist)) as specfile:
-                    lines = specfile.readlines()
+                data = sparse.load_npz(zp.open(map_distance_to_filename(dist)))
                 for a,i in enumerate(indeces):
-                    line = str(lines[i]).strip().split(',')
                     for b,j in enumerate(indeces):
                         if a != b:
-                            distance_d = line[j]
-                            arr_list[k][a,b] = float(distance_d)
+                            if i > j:
+                                arr_list[k][a,b] = data[j,i]
+                            else:
+                                arr_list[k][a,b] = data[i,j]                
         if len(arr_list) > 1:
             return arr_list
         else:
             return arr_list[0]
-
-
-
-
 
 
 def geographic_distance(*args):
